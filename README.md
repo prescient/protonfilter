@@ -249,3 +249,7 @@ is optional JSON with `filters`, `select` (an app id), `tag_query`, `dark`,
 ```bash
 PROTONFILTER_CAPTURE=/tmp/shot.png PROTONFILTER_CAPTURE_STATE='{"filters": {"tiers": ["gold"], "include": ["RPG"]}, "select": 292030}' cargo run -- gui
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).
