@@ -217,15 +217,13 @@ The desktop shortcut runs this script, so after an edit you only need to
 click it. To make the shortcut again (for example after moving the project):
 
 ```bash
-mkdir -p ~/.local/share/icons/hicolor/scalable/apps
-ln -sf "$PWD/assets/protonfilter.svg" ~/.local/share/icons/hicolor/scalable/apps/protonfilter.svg
 cat > ~/Desktop/ProtonFilter.desktop <<EOF
 [Desktop Entry]
 Type=Application
 Name=ProtonFilter
 Exec=$PWD/scripts/launch.sh
 Path=$PWD
-Icon=protonfilter
+Icon=$PWD/assets/protonfilter.svg
 Terminal=false
 Categories=Game;
 StartupWMClass=protonfilter
@@ -236,6 +234,10 @@ chmod +x ~/Desktop/ProtonFilter.desktop
 sed 's/^StartupWMClass=.*/&\nNoDisplay=true/' ~/Desktop/ProtonFilter.desktop \
   > ~/.local/share/applications/protonfilter.desktop
 ```
+
+The shortcut points straight at the icon file rather than an icon theme name.
+Plasma only scans icon theme folders that existed when it started, so an icon
+installed into a new theme folder stays blank until you log out and back in.
 
 The icon is `assets/protonfilter.svg`. The window icon built into the binary
 is a PNG made from it; after editing the SVG, regenerate it with
