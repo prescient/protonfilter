@@ -39,11 +39,13 @@ protonfilter gui
     to rate games by their current, trending or best-ever tier, and optionally
     hide games that have a native Linux build.
   - *Steam Deck*: Verified, Playable, Unsupported, Unknown.
-  - *DirectX 12*: under Proton, DX12 games run through VKD3D-Proton rather
+  - *Graphics API*: under Proton, DX12 games run through VKD3D-Proton rather
     than DXVK. **Hide games that need DX12** removes games where DX12 is the
     only option. **Hide every game with DX12** also removes games that offer
-    it alongside DX11 or Vulkan. Games whose graphics APIs aren't known stay
-    in the list unless you tick **Hide games with unknown graphics API**.
+    it alongside DX11 or Vulkan. **Only games with Vulkan** keeps games with a
+    Vulkan renderer, which skip DirectX translation altogether. Games whose
+    graphics APIs aren't known stay in the list unless you tick **Hide games
+    with unknown graphics API** (or **Only games with Vulkan**).
   - *Genres & tags*: click a genre once to require it, again to exclude it,
     and a third time to clear it (right-click excludes straight away). Type in
     the box to add any Steam tag, such as Roguelike or Co-op. With two or more
@@ -117,6 +119,9 @@ protonfilter search -g FPS -t platinum --tier-source trending
 
 # Gold or better, without games that need DirectX 12
 protonfilter search -m gold --dx12 not-required
+
+# Games with a Vulkan renderer
+protonfilter search --vulkan
 ```
 
 `filter` is an alias for `search`.
@@ -133,6 +138,7 @@ protonfilter search -m gold --dx12 not-required
 | `--exclude-native` | Only games that need Proton. |
 | `--dx12` | `any` (default); `not-required` hides games where DirectX 12 is the only option; `exclude` hides every game that supports DX12. Games with unknown graphics APIs are kept. |
 | `--hide-unknown-api` | Also drop games whose graphics APIs aren't known. |
+| `--vulkan` | Only games with a Vulkan renderer. Some start in DirectX and need a setting or launch option to switch. |
 | `-r, --min-reports` / `--max-reports` | Report count (live from ProtonDB). |
 | `-c, --min-comments` / `--max-comments` | Reports with written notes (from the monthly export, so up to a month old). |
 | `-d, --deck` | Steam Deck status: `verified playable unsupported unknown`. |

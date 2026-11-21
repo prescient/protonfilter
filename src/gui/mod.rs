@@ -99,6 +99,7 @@ struct Filters {
     proton_only: bool,
     dx12: Dx12Filter,
     hide_unknown_api: bool,
+    vulkan: bool,
     min_reports: u32,
     max_reports: Option<u32>,
     min_comments: u32,
@@ -121,6 +122,7 @@ impl Default for Filters {
             proton_only: false,
             dx12: Dx12Filter::Any,
             hide_unknown_api: false,
+            vulkan: false,
             min_reports: 0,
             max_reports: None,
             min_comments: 0,
@@ -153,6 +155,7 @@ impl Filters {
             exclude_native: self.proton_only,
             dx12: self.dx12,
             hide_unknown_api: self.hide_unknown_api,
+            vulkan: self.vulkan,
             min_reports: (self.min_reports > 0).then_some(self.min_reports),
             max_reports: self.max_reports,
             min_comments: (self.min_comments > 0).then_some(self.min_comments),
@@ -868,9 +871,9 @@ impl App {
             }
         });
 
-        // --- DirectX 12
-        section(ui, "DirectX 12");
-        ui.radio_value(&mut self.filters.dx12, Dx12Filter::Any, "Show all");
+        // --- Graphics API
+        section(ui, "Graphics API");
+        ui.radio_value(&mut self.filters.dx12, Dx12Filter::Any, "Show DX12 games");
         ui.radio_value(
             &mut self.filters.dx12,
             Dx12Filter::NotRequired,
@@ -886,10 +889,21 @@ impl App {
             "Hide every game with DX12",
         )
         .on_hover_text("Also hides games that offer DX12 alongside DX11 or Vulkan.");
-        ui.checkbox(
-            &mut self.filters.hide_unknown_api,
-            "Hide games with unknown graphics API",
-        );
+        ui.add_space(4.0);
+        ui.checkbox(&mut self.filters.vulkan, "Only games with Vulkan")
+            .on_hover_text(
+                "Games with a Vulkan renderer run without DirectX translation \
+                 (DXVK or VKD3D-Proton). Some start in DirectX and need an in-game \
+                 setting or a launch option such as -vulkan to switch.",
+            );
+        ui.add_enabled(
+            !self.filters.vulkan,
+            egui::Checkbox::new(
+                &mut self.filters.hide_unknown_api,
+                "Hide games with unknown graphics API",
+            ),
+        )
+        .on_disabled_hover_text("Only games with Vulkan already hides them.");
         let known = self.overview.as_ref().map(|o| &o.status);
         match known {
             Some(s) if s.with_apis == 0 => hint(ui, "No graphics API data yet. Run a sync."),
@@ -1627,11 +1641,13 @@ mod tests {
             max_comments: Some(10),
             tiers: [Tier::Gold, Tier::Native].into(),
             dx12: Dx12Filter::NotRequired,
+            vulkan: true,
             ..Default::default()
         };
         let q = f.to_query();
         assert_eq!(q.dx12, Dx12Filter::NotRequired);
         assert!(!q.hide_unknown_api);
+        assert!(q.vulkan);
         assert_eq!(q.name.as_deref(), Some("elden"));
         assert_eq!(q.top_tags, None);
         assert_eq!(q.min_reports, None);

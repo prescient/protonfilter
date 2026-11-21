@@ -102,6 +102,8 @@ pub struct Filter {
     pub dx12: Dx12Filter,
     /// Leave out games PCGamingWiki has no graphics API info for.
     pub hide_unknown_api: bool,
+    /// Only games with a Vulkan renderer.
+    pub vulkan: bool,
     pub min_reports: Option<u32>,
     pub max_reports: Option<u32>,
     pub min_comments: Option<u32>,
@@ -640,6 +642,9 @@ impl Db {
         if f.hide_unknown_api {
             clauses.push("g.apis IS NOT NULL".into());
         }
+        if f.vulkan {
+            clauses.push("',' || g.apis || ',' LIKE '%,vulkan,%'".into());
+        }
 
         // Counts.
         let mut range = |expr: &str, op: &str, v: Option<u32>| {
@@ -1145,6 +1150,12 @@ mod tests {
         assert_eq!(ids(&db, f(Dx12Filter::Exclude, false)), vec![3, 4]);
         assert_eq!(ids(&db, f(Dx12Filter::Exclude, true)), vec![3]);
         assert_eq!(ids(&db, f(Dx12Filter::Any, true)), vec![1, 2, 3]);
+
+        let vulkan = Filter {
+            vulkan: true,
+            ..Default::default()
+        };
+        assert_eq!(ids(&db, vulkan), vec![3], "unknown games are left out too");
 
         let g = db.game(3).unwrap().unwrap();
         assert_eq!(g.graphics_apis.unwrap().short_label(), "DX11 + VK");

@@ -140,6 +140,9 @@ struct SearchArgs {
     /// Leave out games whose graphics APIs aren't known
     #[arg(long)]
     hide_unknown_api: bool,
+    /// Only games with a Vulkan renderer. From PCGamingWiki
+    #[arg(long)]
+    vulkan: bool,
     /// At least this many reports
     #[arg(long, short = 'r', value_name = "N")]
     min_reports: Option<u32>,
@@ -185,6 +188,7 @@ impl From<SearchArgs> for (Filter, Format) {
             exclude_native: a.exclude_native,
             dx12: a.dx12,
             hide_unknown_api: a.hide_unknown_api,
+            vulkan: a.vulkan,
             min_reports: a.min_reports,
             max_reports: a.max_reports,
             min_comments: a.min_comments,
